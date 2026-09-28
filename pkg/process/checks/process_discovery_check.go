@@ -118,6 +118,7 @@ func (d *ProcessDiscoveryCheck) Run(nextGroupID func() int32, options *RunOption
 		runMaxBatchSize = len(procDiscoveries)
 	}
 
+	runMaxBatchSize = getRuntimeMaxBatchSize(len(procDiscoveries), runMaxBatchSize)
 	groupSize := getGroupSize(len(procDiscoveries), runMaxBatchSize)
 	procDiscoveryChunks := slices.Chunk(procDiscoveries, runMaxBatchSize)
 	payload := make([]model.MessageBody, 0, groupSize)
@@ -138,6 +139,13 @@ func (d *ProcessDiscoveryCheck) Run(nextGroupID func() int32, options *RunOption
 // Cleanup frees any resource held by the ProcessDiscoveryCheck before the agent exits
 func (d *ProcessDiscoveryCheck) Cleanup() {}
 
+func getRuntimeMaxBatchSize(totalCount int, maxBatchSize int) int {
+	if maxBatchSize <= 0 {
+		return totalCount
+	}
+	return min(totalCount, maxBatchSize)
+}
+
 func getGroupSize(totalCount int, chunkSize int) int {
 	chunkCount := totalCount / chunkSize
 	if totalCount%chunkSize != 0 {
@@ -147,11 +155,14 @@ func getGroupSize(totalCount int, chunkSize int) int {
 }
 
 func getChunkSize(totalCount int, groupSize int) int {
+	if groupSize == 0 {
+		return 1
+	}
 	chunkSize := totalCount / groupSize
 	if totalCount%groupSize != 0 {
 		chunkSize++
 	}
-	return chunkSize
+	return max(chunkSize, 1)
 }
 
 func pidMapToProcDiscoveries(pidMap map[int32]*procutil.Process, userProbe *LookupIDProbe, scrubber *procutil.DataScrubber) []*model.ProcessDiscovery {

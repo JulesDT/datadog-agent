@@ -135,6 +135,7 @@ func (c *ContainerCheck) Run(nextGroupID func() int32, options *RunOptions) (Run
 		runMaxBatchSize = len(containers)
 	}
 
+	runMaxBatchSize = getRuntimeMaxBatchSize(len(containers), runMaxBatchSize)
 	groupSize := getGroupSize(len(containers), runMaxBatchSize)
 	chunked := slices.Chunk(containers, runMaxBatchSize)
 	messages := make([]model.MessageBody, 0, groupSize)

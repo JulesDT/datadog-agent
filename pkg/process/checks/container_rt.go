@@ -98,7 +98,7 @@ func (r *RTContainerCheck) Run(nextGroupID func() int32, _ *RunOptions) (RunResu
 		return nil, nil
 	}
 
-	runMaxBatchSize := min(len(containers), r.maxBatchSize)
+	runMaxBatchSize := getRuntimeMaxBatchSize(len(containers), r.maxBatchSize)
 	groupSize := getGroupSize(len(containers), runMaxBatchSize)
 	chunked := slices.Chunk(ddslices.Map(containers, convertToContainerStat), runMaxBatchSize)
 	messages := make([]model.MessageBody, 0, groupSize)

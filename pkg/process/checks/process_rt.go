@@ -67,7 +67,7 @@ func (p *ProcessCheck) runRealtime(groupID int32) (RunResult, error) {
 	var messages []model.MessageBody
 	procStats := convertProcessStats(procs, p.realtimeLastProcs, pidToCid, cpuTimes[0], p.realtimeLastCPUTime, p.realtimeLastRun, time.Now())
 	if len(procStats) > 0 {
-		runMaxBatchSize := min(len(procStats), p.maxBatchSize)
+		runMaxBatchSize := getRuntimeMaxBatchSize(len(procStats), p.maxBatchSize)
 		groupSize := getGroupSize(len(procStats), runMaxBatchSize)
 		messages = make([]model.MessageBody, 0, groupSize)
 
