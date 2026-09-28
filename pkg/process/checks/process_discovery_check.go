@@ -103,6 +103,9 @@ func (d *ProcessDiscoveryCheck) Run(nextGroupID func() int32, options *RunOption
 	if err != nil {
 		return nil, err
 	}
+	if len(procs) == 0 {
+		return nil, nil
+	}
 
 	host := &model.Host{
 		Name:        d.info.HostName,
